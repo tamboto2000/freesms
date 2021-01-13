@@ -30,7 +30,12 @@ func (cl *Client) SendMsg(phone, msg string) error {
 		req.AddCookie(c)
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	httpCl := http.DefaultClient
+	if cl.prox != nil {
+		httpCl.Transport = &http.Transport{Proxy: http.ProxyURL(cl.prox)}
+	}
+
+	resp, err := httpCl.Do(req)
 	if err != nil {
 		return err
 	}
@@ -47,7 +52,7 @@ func (cl *Client) SendMsg(phone, msg string) error {
 	}
 
 	if strings.Contains(string(raw), "Mohon Tunggu 15 Menit Lagi Untuk Pengiriman Pesan Yang Sama") {
-		return errors.New("wait for 15 minutes for sending the same message, or try to use proxy")
+		return errors.New("wait for 15 minutes for sending the same message")
 	}
 
 	return nil

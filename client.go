@@ -3,6 +3,7 @@ package freesms
 import (
 	"errors"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -43,6 +44,7 @@ type Client struct {
 	raw     []byte
 	captcha string
 	key     string
+	prox    *url.URL
 }
 
 // NewClient initiate new client
@@ -55,6 +57,19 @@ func NewClient() (*Client, error) {
 	return cl, nil
 }
 
+// SetProxy set proxy to client.
+// Use proxy originated from Indonesia, see sslproxies.org, or scrape it with github.com/tamboto2000/sslproxies
+func (cl *Client) SetProxy(ustr string) error {
+	u, err := url.Parse(ustr)
+	if err != nil {
+		return err
+	}
+
+	cl.prox = u
+
+	return nil
+}
+
 // get session and tokens
 func (cl *Client) init() error {
 	req, err := http.NewRequest("GET", "https://"+host+"/index.php", nil)
@@ -63,7 +78,12 @@ func (cl *Client) init() error {
 	}
 
 	req.Header = baseHeader()
-	resp, err := http.DefaultClient.Do(req)
+	httpCl := http.DefaultClient
+	if cl.prox != nil {
+		httpCl.Transport = &http.Transport{Proxy: http.ProxyURL(cl.prox)}
+	}
+
+	resp, err := httpCl.Do(req)
 	if err != nil {
 		return err
 	}
