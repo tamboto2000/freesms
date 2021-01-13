@@ -36,7 +36,8 @@ func main() {
 		panic(err.Error())
 	}
 
-	if err := cl.SendMsg("085711502721", "Jangan lupa makan ya sanyaaang"); err != nil {
+    // Minimum chars is 15, maximum 122
+	if err := cl.SendMsg("08xxxxxxx", "Asyiaaaap"); err != nil {
 		panic(err.Error())
 	}
 }

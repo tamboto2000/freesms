@@ -10,7 +10,8 @@ import (
 
 // SendMsg send message.
 // Note that there will be no any JSON, XML, or any other returned response, is err == nil then
-// the message is successfully sent to receiver
+// the message is successfully sent to receiver.
+// Minimum chars is 15, maximum 122
 func (cl *Client) SendMsg(phone, msg string) error {
 	sendBody := make(url.Values)
 	sendBody.Set("nohp", phone)
