@@ -54,8 +54,14 @@ func (cl *Client) SendMsg(phone, msg string) error {
 		return err
 	}
 
-	if strings.Contains(string(raw), "Mohon Tunggu 15 Menit Lagi Untuk Pengiriman Pesan Yang Sama") {
-		return errors.New("wait for 15 minutes for sending the same message")
+	resp.Body.Close()
+
+	rawString := string(raw)
+	if strings.Contains(rawString, "Untuk Pengiriman Pesan Yang Sama") {
+		split := strings.Split(rawString, "<br>Mohon Tunggu ")
+		split = strings.Split(split[1], " Menit Lagi")
+
+		return errors.New("wait for " + split[0] + " minutes for sending the same message")
 	}
 
 	return nil
